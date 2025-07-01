@@ -36,25 +36,11 @@ server {
     root /var/www/yardeespaces;
     index index.html index.htm;
     
-    # Serve static files and handle SPA routing
-    location / {
-        try_files $uri $uri/ @docker;
-    }
-    
-    # Proxy to Docker containers when file not found
-    location @docker {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-    }
-    
-    # Let's Encrypt ACME challenge location
+    # Let's Encrypt ACME challenge location (MUST be first and most specific)
     location /.well-known/acme-challenge/ {
         root /var/www/yardeespaces;
         try_files $uri =404;
+        allow all;
     }
     
     # Proxy API requests to backend
@@ -69,6 +55,16 @@ server {
         add_header Access-Control-Allow-Origin *;
         add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
         add_header Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With";
+    }
+    
+    # Proxy everything else to Docker frontend
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
     }
 }
 EOF
