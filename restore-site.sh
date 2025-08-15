@@ -7,7 +7,8 @@ echo "===================================="
 if [ ! -f "/etc/letsencrypt/live/yardeespaces.com/fullchain.pem" ]; then
     echo "❌ SSL certificate not found!"
     echo "Please run the SSL certificate setup first:"
-    echo "sudo certbot --nginx -d yardeespaces.com -d www.yardeespaces.com"
+    echo "Option 1: ./fix-acme-standalone.sh (recommended)"
+    echo "Option 2: sudo certbot --nginx -d yardeespaces.com -d www.yardeespaces.com"
     exit 1
 fi
 
