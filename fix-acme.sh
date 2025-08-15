@@ -19,11 +19,12 @@ sudo tee /var/www/yardeespaces/.well-known/acme-challenge/test > /dev/null << 'E
 test-acme-challenge-working
 EOF
 
-# Create a minimal nginx config that ONLY serves ACME challenges
+# Create a minimal nginx config that ONLY serves ACME challenges with IPv6 support
 echo "Creating minimal nginx config for ACME challenges..."
 sudo tee /etc/nginx/sites-available/yardeespaces-acme > /dev/null << 'EOF'
 server {
     listen 80;
+    listen [::]:80;
     server_name yardeespaces.com www.yardeespaces.com;
     
     # Root directory for ACME challenges
@@ -79,15 +80,23 @@ fi
 echo "Testing ACME challenge access..."
 sleep 3  # Give nginx time to start and reload
 
-# Test locally first
-echo "Testing local access..."
+# Test locally first (IPv4)
+echo "Testing local IPv4 access..."
 if curl -s http://localhost/.well-known/acme-challenge/test | grep -q "test-acme-challenge-working"; then
-    echo "✅ Local ACME challenge access works"
+    echo "✅ Local IPv4 ACME challenge access works"
 else
-    echo "❌ Local ACME challenge access failed"
+    echo "❌ Local IPv4 ACME challenge access failed"
     echo "Nginx may not be listening on port 80"
     sudo ss -tulpn | grep :80
     exit 1
+fi
+
+# Test locally with IPv6
+echo "Testing local IPv6 access..."
+if curl -s -6 http://[::1]/.well-known/acme-challenge/test | grep -q "test-acme-challenge-working"; then
+    echo "✅ Local IPv6 ACME challenge access works"
+else
+    echo "⚠️  Local IPv6 ACME challenge access failed (this might be normal)"
 fi
 
 # Test external access
