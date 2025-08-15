@@ -48,13 +48,28 @@ EOF
 # Remove any existing site and enable the ACME-only config
 echo "Enabling ACME-only nginx configuration..."
 sudo rm -f /etc/nginx/sites-enabled/yardeespaces
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo ln -sf /etc/nginx/sites-available/yardeespaces-acme /etc/nginx/sites-enabled/
 
 # Test nginx configuration
 echo "Testing nginx configuration..."
 if sudo nginx -t; then
     echo "✅ Nginx configuration is valid"
-    sudo systemctl reload nginx
+    
+    # Start nginx service if not running
+    echo "Starting nginx service..."
+    sudo systemctl start nginx
+    sudo systemctl enable nginx
+    
+    # Check nginx status
+    if sudo systemctl is-active --quiet nginx; then
+        echo "✅ Nginx service is running"
+        sudo systemctl reload nginx
+    else
+        echo "❌ Failed to start nginx service"
+        sudo systemctl status nginx
+        exit 1
+    fi
 else
     echo "❌ Nginx configuration has errors!"
     exit 1
@@ -62,8 +77,21 @@ fi
 
 # Test ACME challenge directory access
 echo "Testing ACME challenge access..."
-sleep 2  # Give nginx time to reload
+sleep 3  # Give nginx time to start and reload
 
+# Test locally first
+echo "Testing local access..."
+if curl -s http://localhost/.well-known/acme-challenge/test | grep -q "test-acme-challenge-working"; then
+    echo "✅ Local ACME challenge access works"
+else
+    echo "❌ Local ACME challenge access failed"
+    echo "Nginx may not be listening on port 80"
+    sudo ss -tulpn | grep :80
+    exit 1
+fi
+
+# Test external access
+echo "Testing external access..."
 if curl -s http://yardeespaces.com/.well-known/acme-challenge/test | grep -q "test-acme-challenge-working"; then
     echo "✅ ACME challenge directory is accessible"
     
@@ -77,10 +105,20 @@ if curl -s http://yardeespaces.com/.well-known/acme-challenge/test | grep -q "te
     echo "After SSL setup completes, run: ./restore-site.sh"
     
 else
-    echo "❌ ACME challenge directory is not accessible"
+    echo "❌ ACME challenge directory is not accessible externally"
     echo "Please check:"
     echo "1. DNS settings for yardeespaces.com"
     echo "2. Firewall settings (port 80 should be open)"
     echo "3. Nginx is running: sudo systemctl status nginx"
+    echo ""
+    echo "Debugging info:"
+    echo "Nginx status:"
+    sudo systemctl status nginx --no-pager -l
+    echo ""
+    echo "Port 80 listening:"
+    sudo ss -tulpn | grep :80
+    echo ""
+    echo "Nginx error log:"
+    sudo tail -n 10 /var/log/nginx/error.log
     exit 1
 fi
