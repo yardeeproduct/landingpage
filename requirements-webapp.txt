@@ -2,7 +2,6 @@
 # Copy this to requirements.txt for web app deployment
 
 # Django and core dependencies
-asgiref==3.8.1
 Django==5.0.14
 django-cors-headers==4.7.0
 django-mssql-backend==2.8.1

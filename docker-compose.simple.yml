@@ -1,0 +1,26 @@
+version: '3.8'
+
+# Simplified deployment for Azure App Service
+# Single container approach - lowest cost
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    ports:
+      - "80:80"
+    environment:
+      # Database settings (will be overridden by Azure App Settings)
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=1433
+      # Django settings
+      - DEBUG=0
+      - SECRET_KEY=${SECRET_KEY}
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      # CORS settings
+      - CORS_ALLOW_ALL_ORIGINS=False
+      - FRONTEND_URL=${FRONTEND_URL}
+    restart: always

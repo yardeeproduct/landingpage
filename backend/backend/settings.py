@@ -31,7 +31,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-yvcgp0604wn+d$(^u%$_v
 # DEBUG = False
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '20.151.76.30', '*']  # Allow all hosts for testing
+# Security: Configure allowed hosts properly
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'backend',
+    '.azurewebsites.net',  # Azure App Service
+    '.azurecontainer.io',  # Azure Container Instances
+]
+
+# Add custom domain if configured
+if os.environ.get('CUSTOM_DOMAIN'):
+    ALLOWED_HOSTS.append(os.environ.get('CUSTOM_DOMAIN'))
 
 
 # Application definition
@@ -182,14 +193,19 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CORS configuration for production
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
     "http://localhost:3000",  # Docker frontend
+    "http://localhost:80",    # Production frontend
 ]
 
-# CORS configuration - set to False in production and configure specific origins
-# CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'True').lower() == 'true'
-CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'True').lower() == 'true'
+# Add Azure App Service origins
+if os.environ.get('FRONTEND_URL'):
+    CORS_ALLOWED_ORIGINS.append(os.environ.get('FRONTEND_URL'))
+
+# Allow all origins only in development
+CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
 
 
 CORS_ALLOW_CREDENTIALS = True
@@ -214,3 +230,30 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+# Production Security Settings
+if not DEBUG:
+    # HTTPS Security
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True').lower() == 'true'
+    SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'True').lower() == 'true'
+    
+    # Session Security
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+    SESSION_COOKIE_HTTPONLY = os.environ.get('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
+    SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'Strict')
+    
+    # CSRF Security
+    CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
+    CSRF_COOKIE_HTTPONLY = os.environ.get('CSRF_COOKIE_HTTPONLY', 'True').lower() == 'true'
+    CSRF_COOKIE_SAMESITE = os.environ.get('CSRF_COOKIE_SAMESITE', 'Strict')
+    
+    # Static files configuration
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    
+    # Security Headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
