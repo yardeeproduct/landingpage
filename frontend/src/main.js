@@ -144,8 +144,11 @@ class EmailSignup {
         attempt++;
         console.log(`Email submission attempt ${attempt}/${maxRetries}`);
         
-        // Use relative URL - nginx will proxy to backend
-        const apiBaseUrl = '';
+        // Determine API base URL
+        // - In Docker: VITE_API_BASE_URL is set (e.g., http://backend:8000)
+        // - In local dev (vite): proxy is configured for /api, so fallback '' works
+        const apiBaseEnv = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) ? import.meta.env.VITE_API_BASE_URL : '';
+        const apiBaseUrl = (apiBaseEnv || '').replace(/\/+$/, '');
         
         // Progressive timeout - longer for first attempt (cold start)
         const timeout = attempt === 1 ? 15000 : 8000; // 15s first, 8s retry

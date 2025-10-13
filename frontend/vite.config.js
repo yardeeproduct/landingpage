@@ -23,6 +23,16 @@ export default defineConfig({
     strictPort: true,
     hmr: {
       port: 5173
+    },
+    proxy: {
+      // Forward /api to Django backend when running `npm run dev`
+      '/api': {
+        target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+        // Keep path as-is
+        rewrite: (path) => path,
+      },
     }
   },
   

@@ -10,7 +10,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=1
+      - DEBUG=true
       - DJANGO_SETTINGS_MODULE=backend.settings
       - SECRET_KEY=dev-secret-key-change-in-production
       - DB_HOST=db
@@ -19,6 +19,7 @@ services:
       - DB_PASSWORD=YourStrong@Passw0rd
       - DB_PORT=1433
       - CORS_ALLOW_ALL_ORIGINS=True
+      - SECURE_SSL_REDIRECT=False
     depends_on:
       db:
         condition: service_healthy
@@ -36,7 +37,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - VITE_API_BASE_URL=http://backend:8000
+      - VITE_API_BASE_URL=
       - VITE_APP_ENV=development
     depends_on:
       backend:
