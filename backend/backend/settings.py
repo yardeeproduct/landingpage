@@ -103,16 +103,8 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', ''),
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
-            'encrypt': True,
-            'trust_server_certificate': False,
-            # Connection optimization
-            'timeout': 5,  # 5 second connection timeout
-            'query_timeout': 10,  # 10 second query timeout
-            'autocommit': True,
-            'MARS_Connection': True,  # Multiple Active Result Sets
+            'extra_params': 'TrustServerCertificate=yes',
         },
-        'CONN_MAX_AGE': 300,  # Keep connections alive for 5 minutes
-        'CONN_HEALTH_CHECKS': True,  # Enable connection health checks
     }
 }
 

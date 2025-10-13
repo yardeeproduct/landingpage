@@ -1,24 +1,24 @@
 # Yardee Spaces Landing Page
 
-A modern, responsive landing page built with Django REST API backend and Vite.js frontend, designed for Azure App Service deployment.
+A modern, responsive landing page built with Django REST API backend and Vite.js frontend, fully containerized with Docker.
 
 ## 🚀 Features
 
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 - **Email Subscription**: Newsletter signup with Django backend
 - **Image Carousel**: Dynamic hero section with smooth transitions
-- **Production Ready**: Optimized for Azure App Service deployment
-- **Docker Support**: Containerized for easy deployment
-- **Security**: HTTPS, CORS, and security headers configured
+- **Docker Support**: Fully containerized for easy deployment
+- **Security**: Modern security headers and CORS configured
 - **Monitoring**: Health checks and logging integrated
+- **2025 Ready**: Latest Python 3.12, Node.js 22 LTS, Nginx 1.27
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │   Backend       │    │   Database      │
-│   (Vite.js)     │◄──►│   (Django)      │◄──►│   (Azure SQL)   │
-│   + Nginx       │    │   + Gunicorn    │    │                 │
+│   (Vite.js)     │◄──►│   (Django)      │◄──►│  (SQL Server)   │
+│   + Nginx 1.27  │    │   + Gunicorn    │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -30,21 +30,21 @@ A modern, responsive landing page built with Django REST API backend and Vite.js
 - **Vanilla JavaScript** - No framework dependencies
 
 ### Backend
+- **Python 3.12** - Latest stable Python
 - **Django 5.0** - Python web framework
 - **Django REST Framework** - API development
 - **Gunicorn** - WSGI HTTP Server
-- **SQL Server** - Database (Azure SQL compatible)
+- **SQL Server 2022** - Database with ODBC driver
 
 ### Infrastructure
-- **Docker** - Containerization
-- **Azure App Service** - Cloud hosting
-- **Azure SQL Database** - Managed database
-- **Azure Container Registry** - Container storage
+- **Docker & Docker Compose** - Container orchestration
+- **Nginx 1.27-alpine** - Web server and reverse proxy
+- **Node.js 22 LTS** - Frontend build tooling
 
 ## 📦 Project Structure
 
 ```
-yardee-spaces/
+landingpage/
 ├── backend/                 # Django backend
 │   ├── backend/            # Django project settings
 │   ├── newsletter/         # Newsletter app
@@ -53,55 +53,85 @@ yardee-spaces/
 ├── frontend/               # Vite.js frontend
 │   ├── src/               # Source files
 │   ├── public/            # Static assets
+│   ├── dist/              # Built files
 │   ├── package.json       # Node dependencies
 │   └── nginx.conf         # Nginx configuration
-├── .github/               # GitHub Actions workflows
-├── docker-compose.yml     # Local development
-├── docker-compose.azure.yml # Azure deployment
+├── docker-compose.yml     # Docker Compose config
 ├── Dockerfile.backend     # Backend container
-├── Dockerfile.frontend    # Frontend container
-└── azure-deployment.md    # Deployment guide
+└── Dockerfile.frontend    # Frontend container
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker and Docker Compose
-- Node.js 18+ (for local frontend development)
-- Python 3.11+ (for local backend development)
+- Docker and Docker Compose installed
+- No other services running on ports 80, 8000, or 1433
 
-### Local Development
+### Start Application
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd yardee-spaces
-   ```
+```bash
+# Stop any existing containers
+docker compose down
 
-2. **Set up environment variables**
-   ```bash
-   cp backend/env.example backend/.env
-   # Edit backend/.env with your settings
-   ```
+# Build and start all services
+docker compose build
+docker compose up -d
 
-3. **Start with Docker Compose**
-   ```bash
-   docker-compose up --build
-   ```
+# Check status
+docker compose ps
+```
 
-4. **Access the application**
-   - Frontend: http://localhost:80
-   - Backend API: http://localhost:8000
-   - Health Check: http://localhost:8000/api/health/
+The application will:
+- ✅ Start SQL Server database with health checks
+- ✅ Build and start Django backend
+- ✅ Build and start Vite.js frontend with Nginx
+- ✅ Run database migrations automatically
+- ✅ Wait for all services to be healthy
 
-### Manual Development Setup
+### Access the Application
+
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:8000
+- **API Health**: http://localhost:8000/api/health/
+- **Admin Panel**: http://localhost:8000/admin/
+
+### View Logs
+
+```bash
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f db
+```
+
+### Stop Application
+
+```bash
+docker compose down
+
+# Stop and remove volumes
+docker compose down -v
+```
+
+### Manual Development (Without Docker)
 
 #### Backend Setup
 ```bash
 cd backend
-python -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Set up database connection
+export DB_HOST=localhost
+export DB_NAME=yardee_dev
+export DB_USER=sa
+export DB_PASSWORD=YourStrong@Passw0rd
+
+# Run migrations and start server
 python manage.py migrate
 python manage.py runserver
 ```
@@ -110,7 +140,7 @@ python manage.py runserver
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev  # Runs on http://localhost:5173
 ```
 
 ## 🌐 API Endpoints
@@ -155,160 +185,223 @@ VITE_APP_ENV=development
 
 ## 🚀 Deployment
 
-### Azure App Service
+### Docker Production Deployment
 
-See [azure-deployment.md](./azure-deployment.md) for detailed deployment instructions.
+The application is fully containerized and can be deployed to any Docker-compatible platform:
 
-### Quick Azure Deployment
+#### Build Production Images
+```bash
+# Build images
+docker compose build
 
-1. **Set up Azure resources**
-   ```bash
-   # Create resource group
-   az group create --name yardee-spaces-rg --location eastus
-   
-   # Create SQL Database
-   az sql server create --name yardee-sql --resource-group yardee-spaces-rg --location eastus --admin-user admin --admin-password "Password123!"
-   az sql db create --resource-group yardee-spaces-rg --server yardee-sql --name yardee-db --service-objective Basic
-   
-   # Create Container Registry
-   az acr create --resource-group yardee-spaces-rg --name yardeeacr --sku Basic --admin-enabled true
-   ```
+# Tag for your registry
+docker tag landingpage-backend:latest your-registry/backend:latest
+docker tag landingpage-frontend:latest your-registry/frontend:latest
 
-2. **Build and push images**
-   ```bash
-   az acr login --name yardeeacr
-   docker build -f Dockerfile.backend -t yardeeacr.azurecr.io/backend:latest .
-   docker build -f Dockerfile.frontend -t yardeeacr.azurecr.io/frontend:latest .
-   docker push yardeeacr.azurecr.io/backend:latest
-   docker push yardeeacr.azurecr.io/frontend:latest
-   ```
+# Push to registry
+docker push your-registry/backend:latest
+docker push your-registry/frontend:latest
+```
 
-3. **Deploy to App Service**
-   ```bash
-   az appservice plan create --name yardee-plan --resource-group yardee-spaces-rg --location eastus --sku P1V2 --is-linux
-   az webapp create --resource-group yardee-spaces-rg --plan yardee-plan --name yardee-app --multicontainer-config-type compose --multicontainer-config-file docker-compose.azure.yml
-   ```
+#### Deploy to Production
+```bash
+# On production server
+docker compose -f docker-compose.yml up -d
+
+# Check status
+docker compose ps
+docker compose logs -f
+```
+
+### Supported Platforms
+- **AWS ECS/Fargate** - Container orchestration
+- **Azure Container Apps** - Serverless containers
+- **Google Cloud Run** - Serverless deployment
+- **DigitalOcean App Platform** - PaaS deployment
+- **Any VPS** - With Docker installed
 
 ## 🔒 Security Features
 
-- **HTTPS Enforcement** - Automatic SSL redirect in production
+- **Modern Security Headers (2025)**
+  - X-Frame-Options, X-Content-Type-Options
+  - Permissions-Policy for privacy controls
+  - Content-Security-Policy with upgrade-insecure-requests
+  - Strict referrer policy
 - **CORS Configuration** - Proper cross-origin resource sharing
-- **Security Headers** - XSS protection, content type sniffing prevention
 - **Input Validation** - Email format validation and sanitization
 - **Database Security** - Encrypted connections and parameterized queries
 - **Container Security** - Non-root users and minimal base images
+- **HTTP/2 Support** - Modern protocol with server push
 
 ## 📊 Monitoring & Logging
 
 ### Health Checks
-- Backend: `/api/health/`
-- Frontend: Root endpoint with HTTP 200
-- Container health checks configured
+- **Backend**: `/api/health/` - Returns `{"status": "ok"}`
+- **Frontend**: Root endpoint with HTTP 200
+- **Database**: Automated health checks with retries
+- **Container**: Docker health checks configured
 
 ### Logging
-- Structured logging with Django
-- Application Insights integration (Azure)
-- Container logs accessible via Azure portal
+```bash
+# View all logs
+docker compose logs -f
 
-### Performance Monitoring
-- Response time tracking
-- Error rate monitoring
-- Database connection monitoring
-- Auto-scaling based on metrics
+# View specific service logs
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f db
+```
+
+### Monitoring Tools
+- Docker health checks with automatic restart
+- Structured logging with Django
+- Database connection pooling
+- Request/response logging
 
 ## 🧪 Testing
 
 ### Backend Tests
 ```bash
+# Run Django tests
+docker compose exec backend python manage.py test
+
+# Or locally
 cd backend
 python manage.py test
 ```
 
-### Frontend Tests
+### API Testing
 ```bash
-cd frontend
-npm test
-```
+# Test health endpoint
+curl http://localhost:8000/api/health/
 
-### Integration Tests
-```bash
-# Test email subscription
+# Test newsletter subscription
 curl -X POST http://localhost:8000/api/subscribe/ \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com"}'
 
-# Test health check
-curl http://localhost:8000/api/health/
+# Expected response
+# {"message": "Successfully subscribed!", "created": true}
+```
+
+### Frontend Testing
+```bash
+# Access frontend
+open http://localhost
+
+# Check Nginx config
+docker compose exec frontend nginx -t
 ```
 
 ## 🔧 Development
+
+### Tech Stack Versions (2025)
+- **Python 3.12** - Latest stable
+- **Node.js 22 LTS** - Long-term support
+- **Nginx 1.27-alpine** - Latest stable
+- **SQL Server 2022** - Latest version
 
 ### Code Style
 - **Python**: PEP 8 compliance
 - **JavaScript**: ES6+ features
 - **CSS**: Tailwind utility classes
 
-### Git Workflow
-- Feature branches from `main`
-- Pull requests for code review
-- Automated testing on PR
-- Deployment on merge to `main`
-
-### Docker Development
+### Development Workflow
 ```bash
-# Development with hot reload
-docker-compose -f docker-compose.yml up --build
+# Start in development mode
+docker compose up --build
 
-# Production build test
-docker-compose -f docker-compose.azure.yml up --build
+# Rebuild specific service
+docker compose up -d --build backend
+
+# Run Django commands
+docker compose exec backend python manage.py makemigrations
+docker compose exec backend python manage.py migrate
+docker compose exec backend python manage.py createsuperuser
+
+# Access Django shell
+docker compose exec backend python manage.py shell
 ```
 
 ## 📈 Performance Optimization
 
-### Frontend
-- **Code Splitting** - Dynamic imports for better loading
-- **Image Optimization** - WebP format support
-- **Caching** - Browser cache headers
-- **Compression** - Gzip compression enabled
+### Frontend (Nginx 1.27)
+- **Gzip Compression** - Automatic compression for text assets
+- **Static Asset Caching** - 1 year cache for immutable files
+- **HTTP/2** - Modern protocol with server push support
+- **Proxy Buffering** - Optimized backend communication
 
-### Backend
+### Backend (Python 3.12 + Django)
 - **Connection Pooling** - Database connection reuse
-- **Caching** - In-memory caching for frequent queries
-- **Static Files** - Optimized serving with nginx
-- **Health Checks** - Fast startup detection
+- **Gunicorn Workers** - Multi-process request handling
+- **Static Files** - Efficient serving via Nginx
+- **Health Checks** - Proper startup periods configured
 
-### Infrastructure
-- **CDN** - Azure CDN for static assets
-- **Auto-scaling** - Based on CPU and memory usage
-- **Load Balancing** - Built into Azure App Service
-- **Database Optimization** - Indexed queries and connection pooling
+### Docker Optimizations
+- **Multi-stage Builds** - Minimal production images
+- **Layer Caching** - Fast rebuilds with optimized layers
+- **No Cache Dirs** - Pip and npm without cache for smaller images
+- **Health Checks** - Automatic container restart on failure
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Container startup failures**
-   ```bash
-   # Check logs
-   docker-compose logs backend
-   docker-compose logs frontend
-   ```
-
-2. **Database connection issues**
-   ```bash
-   # Test connection
-   python manage.py dbshell
-   ```
-
-3. **CORS errors**
-   - Verify `CORS_ALLOWED_ORIGINS` setting
-   - Check `FRONTEND_URL` environment variable
-
-### Debug Mode
+#### Database Unhealthy Error
 ```bash
-# Enable debug logging
-export DEBUG=1
-export LOG_LEVEL=DEBUG
+# The database takes ~60 seconds to fully start
+# Wait for health checks to pass
+docker compose ps
+
+# If still failing, check logs
+docker compose logs db
+
+# Restart database
+docker compose restart db
+```
+
+#### Port Already in Use
+```bash
+# Check what's using the port
+lsof -i :80    # Frontend
+lsof -i :8000  # Backend
+lsof -i :1433  # Database
+
+# Kill the process or change ports in docker-compose.yml
+```
+
+#### Backend Can't Connect to Database
+```bash
+# Ensure database is healthy first
+docker compose ps db
+
+# Check backend environment variables
+docker compose exec backend env | grep DB_
+
+# Restart backend after DB is healthy
+docker compose restart backend
+```
+
+#### View All Logs
+```bash
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f db
+
+# Last 100 lines
+docker compose logs --tail=100
+```
+
+#### Clean Start
+```bash
+# Remove everything and start fresh
+docker compose down -v
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ## 📝 License
