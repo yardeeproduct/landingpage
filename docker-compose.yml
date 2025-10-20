@@ -10,19 +10,36 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=true
+      - DEBUG=${DEBUG:-true}
       - DJANGO_SETTINGS_MODULE=backend.settings
-      - SECRET_KEY=dev-secret-key-change-in-production
-      - DB_HOST=db
-      - DB_NAME=yardee_dev
-      - DB_USER=sa
-      - DB_PASSWORD=YourStrong@Passw0rd
-      - DB_PORT=1433
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - DB_HOST=${DB_HOST:-db}
+      - DB_NAME=${DB_NAME:-yardee_dev}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD:-YourStrong@Passw0rd}
+      - DB_PORT=${DB_PORT:-1433}
       - CORS_ALLOW_ALL_ORIGINS=True
       - SECURE_SSL_REDIRECT=False
-    depends_on:
-      db:
-        condition: service_healthy
+      # Email configuration for Outlook 365 Business
+      - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - EMAIL_HOST=smtp.office365.com
+      - EMAIL_PORT=587
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - EMAIL_USE_TLS=true
+      - EMAIL_USE_SSL=false
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-No Reply <noreply@yourcompany.com>}
+      - EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX:-[Newsletter] }
+      - COMPANY_NAME=${COMPANY_NAME:-Your Company}
+      - EMAIL_LOGO_URL=${EMAIL_LOGO_URL}
+      - COMPANY_WEBSITE_URL=${COMPANY_WEBSITE_URL}
+      - COMPANY_ADDRESS=${COMPANY_ADDRESS}
+      - COMPANY_LINKEDIN_URL=${COMPANY_LINKEDIN_URL}
+      - COMPANY_TWITTER_URL=${COMPANY_TWITTER_URL}
+    # Using external Azure SQL Database - no local dependencies needed
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
       interval: 30s
@@ -49,25 +66,25 @@ services:
       retries: 3
       start_period: 40s
 
-  # Database service for local development only
-  # In production, use Azure SQL Database
-  db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      SA_PASSWORD: "YourStrong@Passw0rd"
-      ACCEPT_EULA: "Y"
-      MSSQL_PID: "Express"
-    ports:
-      - "1433:1433"
-    volumes:
-      - mssql_data:/var/opt/mssql
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -C -Q 'SELECT 1' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 60s
+  # Database service for local development only - DISABLED (using Azure SQL)
+  # Uncomment the section below if you want to use local SQL Server instead of Azure
+  # db:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   environment:
+  #     SA_PASSWORD: "YourStrong@Passw0rd"
+  #     ACCEPT_EULA: "Y"
+  #     MSSQL_PID: "Express"
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - mssql_data:/var/opt/mssql
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -C -Q 'SELECT 1' || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 60s
 
 volumes:
   mssql_data:

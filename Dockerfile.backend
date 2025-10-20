@@ -30,9 +30,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # Copy Django project code
 COPY backend /app
 
-# Copy startup script
+# Copy startup script and fix line endings
 COPY backend/start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+RUN sed -i 's/\r$//' /app/start.sh && chmod +x /app/start.sh
 
 # Create non-root user for security
 RUN adduser --disabled-password --gecos '' appuser && \

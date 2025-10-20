@@ -125,19 +125,31 @@ CACHES = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'DEBUG' if DEBUG else 'INFO',
     },
     'loggers': {
         'newsletter.views': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'newsletter.emails': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     },
@@ -222,6 +234,25 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+# Email settings for Outlook 365 Business
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.office365.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'false').lower() == 'true'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'No Reply <noreply@yourcompany.com>')
+EMAIL_SUBJECT_PREFIX = os.environ.get('EMAIL_SUBJECT_PREFIX', '[Newsletter] ')
+
+# Company branding and email customization
+COMPANY_NAME = os.environ.get('COMPANY_NAME', 'Your Company')
+EMAIL_LOGO_URL = os.environ.get('EMAIL_LOGO_URL', '')
+COMPANY_WEBSITE_URL = os.environ.get('COMPANY_WEBSITE_URL', '')
+COMPANY_ADDRESS = os.environ.get('COMPANY_ADDRESS', '')
+COMPANY_LINKEDIN_URL = os.environ.get('COMPANY_LINKEDIN_URL', '')
+COMPANY_TWITTER_URL = os.environ.get('COMPANY_TWITTER_URL', '')
 
 # Production Security Settings
 if not DEBUG:

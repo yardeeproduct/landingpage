@@ -3,7 +3,7 @@ set -e
 
 echo "Starting Django backend..."
 
-# Wait for database to be ready
+# Wait for database to be ready and create database if needed
 echo "Waiting for database..."
 until python -c "
 import os
@@ -12,14 +12,29 @@ import time
 max_attempts = 30
 for attempt in range(max_attempts):
     try:
+        # First, connect to master database
         conn_str = f\"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={os.environ['DB_HOST']},{os.environ['DB_PORT']};DATABASE=master;UID={os.environ['DB_USER']};PWD={os.environ['DB_PASSWORD']};TrustServerCertificate=yes\"
         conn = pyodbc.connect(conn_str, timeout=5)
+        cursor = conn.cursor()
+        
+        # Check if database exists, create if not
+        db_name = os.environ['DB_NAME']
+        cursor.execute(f\"SELECT database_id FROM sys.databases WHERE name = '{db_name}'\")
+        if cursor.fetchone() is None:
+            print(f'Creating database {db_name}...')
+            cursor.execute(f'CREATE DATABASE [{db_name}]')
+            conn.commit()
+            print(f'Database {db_name} created successfully!')
+        else:
+            print(f'Database {db_name} already exists.')
+        
+        cursor.close()
         conn.close()
         print('Database is ready!')
         exit(0)
     except Exception as e:
         if attempt < max_attempts - 1:
-            print(f'Database is unavailable (attempt {attempt + 1}/{max_attempts}) - {str(e)[:50]}... sleeping')
+            print(f'Database is unavailable (attempt {attempt + 1}/{max_attempts}) - {str(e)[:80]}... sleeping')
             time.sleep(2)
         else:
             print(f'Failed to connect after {max_attempts} attempts')

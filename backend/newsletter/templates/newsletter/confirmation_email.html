@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Welcome to {{ company_name }} Newsletter</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td style="padding: 40px 40px 20px 40px; text-align: center; background-color: #ffffff; border-radius: 8px 8px 0 0;">
+                            {% if logo_url %}
+                            <img src="{{ logo_url }}" alt="{{ company_name }} Logo" style="max-width: 200px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+                            {% endif %}
+                            <h1 style="margin: 0; color: #2c3e50; font-size: 28px; font-weight: 700; line-height: 1.2;">
+                                Welcome to {{ company_name }}!
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 0 40px 40px 40px;">
+                            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 6px; margin-bottom: 30px;">
+                                <p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1.6; color: #333333;">
+                                    Thank you for subscribing to our newsletter! We're excited to have you on board.
+                                </p>
+                                
+                                <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #555555;">
+                                    You'll receive updates about our latest news, products, and exclusive content directly in your inbox.
+                                </p>
+                                
+                                <!-- What to Expect Section -->
+                                <div style="background-color: #e8f4f8; padding: 25px; border-radius: 6px; border-left: 4px solid #3498db;">
+                                    <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 18px; font-weight: 600;">
+                                        What to expect:
+                                    </h3>
+                                    <ul style="margin: 0; padding-left: 20px; color: #555555; font-size: 15px; line-height: 1.6;">
+                                        <li style="margin-bottom: 8px;">Latest company updates and announcements</li>
+                                        <li style="margin-bottom: 8px;">Product news and feature releases</li>
+                                        <li style="margin-bottom: 8px;">Exclusive content and insights</li>
+                                        <li style="margin-bottom: 0;">Special offers and promotions</li>
+                                    </ul>
+                                </div>
+                                
+                                {% if website_url %}
+                                <!-- Call to Action -->
+                                <div style="text-align: center; margin-top: 30px;">
+                                    <a href="{{ website_url }}" style="display: inline-block; background-color: #3498db; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 5px; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">
+                                        Visit Our Website
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Disclaimer -->
+                            <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.5; color: #666666;">
+                                If you didn't subscribe to this newsletter, you can safely ignore this email 
+                                or <a href="mailto:{{ support_email }}" style="color: #3498db; text-decoration: none;">contact us</a>.
+                            </p>
+                            
+                            <!-- Signature -->
+                            <div style="border-top: 1px solid #dddddd; padding-top: 20px; text-align: center;">
+                                <p style="margin: 0 0 10px 0; color: #555555; font-size: 16px; font-weight: 600;">
+                                    Best regards,
+                                </p>
+                                <p style="margin: 0; color: #3498db; font-size: 18px; font-weight: 700;">
+                                    The {{ company_name }} Team
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; border-top: 1px solid #e9ecef;">
+                            <p style="margin: 0 0 10px 0; text-align: center; color: #999999; font-size: 12px; line-height: 1.4;">
+                                This email was sent to <strong>{{ subscriber_email }}</strong>
+                            </p>
+                            
+                            {% if company_address %}
+                            <p style="margin: 0 0 10px 0; text-align: center; color: #999999; font-size: 12px; line-height: 1.4;">
+                                {{ company_address }}
+                            </p>
+                            {% endif %}
+                            
+                            <p style="margin: 0; text-align: center; color: #999999; font-size: 12px; line-height: 1.4;">
+                                To unsubscribe or manage your preferences, please 
+                                <a href="mailto:{{ support_email }}" style="color: #3498db; text-decoration: none;">contact us</a>.
+                            </p>
+                            
+                            {% if social_links %}
+                            <!-- Social Links -->
+                            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+                                {% if social_links.website %}
+                                <a href="{{ social_links.website }}" style="display: inline-block; margin: 0 10px; color: #3498db; text-decoration: none; font-size: 12px;">Website</a>
+                                {% endif %}
+                                {% if social_links.linkedin %}
+                                <a href="{{ social_links.linkedin }}" style="display: inline-block; margin: 0 10px; color: #3498db; text-decoration: none; font-size: 12px;">LinkedIn</a>
+                                {% endif %}
+                                {% if social_links.twitter %}
+                                <a href="{{ social_links.twitter }}" style="display: inline-block; margin: 0 10px; color: #3498db; text-decoration: none; font-size: 12px;">Twitter</a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

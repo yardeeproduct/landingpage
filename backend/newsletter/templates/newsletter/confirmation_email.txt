@@ -1,0 +1,34 @@
+Welcome to {{ company_name }}!
+
+Hi there!
+
+Thank you for subscribing to the {{ company_name }} newsletter!
+
+We're excited to have you on board. You'll receive updates about our latest news, 
+products, and exclusive content directly in your inbox.
+
+What to expect:
+• Latest company updates and announcements
+• Product news and feature releases
+• Exclusive content and insights
+• Special offers and promotions
+
+{% if website_url %}Visit us at: {{ website_url }}{% endif %}
+
+If you didn't subscribe to this newsletter, you can safely ignore this email 
+or contact us at {{ support_email }}.
+
+Best regards,
+The {{ company_name }} Team
+
+---
+This email was sent to {{ subscriber_email }}
+{% if company_address %}{{ company_address }}{% endif %}
+To unsubscribe or manage your preferences, please contact us at {{ support_email }}.
+
+{% if social_links %}
+Connect with us:
+{% if social_links.website %}Website: {{ social_links.website }}{% endif %}
+{% if social_links.linkedin %}LinkedIn: {{ social_links.linkedin }}{% endif %}
+{% if social_links.twitter %}Twitter: {{ social_links.twitter }}{% endif %}
+{% endif %}
