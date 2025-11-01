@@ -40,6 +40,8 @@ ALLOWED_HOSTS = [
     'backend',
     '.azurewebsites.net',  # Azure App Service
     '.azurecontainer.io',  # Azure Container Instances
+    'yardeespaces.com',  # Production domain
+    'www.yardeespaces.com',  # Production domain with www
 ]
 
 # Add custom domain if configured
@@ -218,6 +220,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
     "http://localhost:3000",  # Docker frontend
     "http://localhost:80",    # Production frontend
+    "https://yardeespaces.com",  # Production domain
+    "https://www.yardeespaces.com",  # Production domain with www
 ]
 
 # Add Azure App Service origins
