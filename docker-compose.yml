@@ -31,11 +31,13 @@ services:
       - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-No Reply <noreply@yourcompany.com>}
       - EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX:-[Newsletter] }
       - COMPANY_NAME=${COMPANY_NAME:-Your Company}
-      - EMAIL_LOGO_URL=${EMAIL_LOGO_URL}
-      - COMPANY_WEBSITE_URL=${COMPANY_WEBSITE_URL}
-      - COMPANY_ADDRESS=${COMPANY_ADDRESS}
-      - COMPANY_LINKEDIN_URL=${COMPANY_LINKEDIN_URL}
-      - COMPANY_TWITTER_URL=${COMPANY_TWITTER_URL}
+      - EMAIL_LOGO_URL=${EMAIL_LOGO_URL:-https://yardeespaces.com/assets/images/logo.svg}
+      - COMPANY_WEBSITE_URL=${COMPANY_WEBSITE_URL:-https://yardeespaces.com}
+      - COMPANY_ADDRESS=${COMPANY_ADDRESS:-Yardee Spaces, Toronto, ON, Canada}
+      - COMPANY_LINKEDIN_URL=${COMPANY_LINKEDIN_URL:-https://linkedin.com/company/yardeespaces}
+      - COMPANY_TWITTER_URL=${COMPANY_TWITTER_URL:-https://twitter.com/yardeespaces}
+      - COMPANY_INSTAGRAM_URL=${COMPANY_INSTAGRAM_URL:-https://www.instagram.com/yardeespaces/}
+      - COMPANY_FACEBOOK_URL=${COMPANY_FACEBOOK_URL:-https://www.facebook.com/yardeespaces/}
     # Using external Azure SQL Database - no local dependencies needed
     # depends_on:
     #   db:
@@ -51,11 +53,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        # Vite environment variables must be set at build time, not runtime
+        - VITE_API_BASE_URL=
+        - VITE_APP_ENV=production
     ports:
       - "80:80"
     environment:
-      - VITE_API_BASE_URL=
-      - VITE_APP_ENV=development
+      # Runtime env vars (note: Vite env vars must be set at build time)
+      - VITE_APP_ENV=production
     depends_on:
       backend:
         condition: service_healthy

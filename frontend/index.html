@@ -98,7 +98,7 @@
           <!-- Stats Grid -->
           <div class="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 pl-5 sm:pl-6 md:pl-8">
             <div class="flex flex-col items-center justify-center text-center space-y-0.5 sm:space-y-1 min-w-0">
-              <p class="text-sm sm:text-base md:text-lg lg:text-xl font-semibold leading-none">300+</p>
+              <p class="text-sm sm:text-base md:text-lg lg:text-xl font-semibold leading-none">50+</p>
               <p class="text-xs sm:text-sm text-black/70 leading-tight">Early Signups</p>
             </div>
             <div class="flex flex-col items-center justify-center text-center space-y-0.5 sm:space-y-1 min-w-0">
@@ -179,7 +179,7 @@
       <!-- Left: Text Content -->
       <div class="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 space-y-3 sm:space-y-4 lg:space-y-6 lg:pr-8 xl:pr-16 2xl:pr-32 text-center lg:text-left">
         <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-black leading-snug">
-          Turn that <span class="text-[#88E03B]">property</span> into your<br class="hidden sm:block" /> next <span class="text-[#88E03B]">paycheck</span><span class="text-[#88E03B]">.</span>
+          Turn that <span class="text-[#88E03B]">property</span> into your&nbsp;next <span class="text-[#88E03B]">paycheck</span><span class="text-[#88E03B]">.</span>
         </h2>
         <p class="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-lg mx-auto lg:mx-0">
           Whether you're an experienced renter or just a homeowner looking for some extra cash,<br class="hidden md:block" />
@@ -198,39 +198,79 @@
   </div>
 </section>
 
-<section class="relative h-[400px] sm:h-[500px] md:h-[550px] lg:h-[600px] xl:h-[650px] w-full">
-  <!-- Background image -->
+<section class="relative min-h-[480px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] w-full overflow-hidden">
+  <!-- Background image with enhanced overlay -->
   <img src="/assets/images/hero-background.png" alt="Backyard view"
-       class="absolute inset-0 w-full h-full object-cover" />
+       class="absolute inset-0 w-full h-full object-cover scale-105" />
 
-  <!-- Overlay -->
-  <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+  <!-- Enhanced gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-black/20 to-transparent"></div>
+
+  <!-- Decorative elements -->
+  <div class="absolute top-8 left-8 w-16 h-16 bg-[#88E03B]/20 rounded-full blur-xl"></div>
+  <div class="absolute bottom-12 right-12 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
 
   <!-- Content -->
-  <div class="relative z-10 flex flex-col justify-center items-center text-center h-full px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
-    <h2 class="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-medium mb-2 sm:mb-3 md:mb-4">
-      The outdoors, now on demand.
-    </h2>
-    <p class="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-4 sm:mb-6 md:mb-8">
-      Coming soon to your device.
-    </p>
-
-    <!-- App badge container -->
-    <div class="bg-transparent sm:bg-white/20 sm:backdrop-blur-md py-4 sm:py-4 md:py-5 lg:py-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 rounded-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 md:gap-8 lg:gap-10 shadow-lg max-w-full overflow-hidden">
-      <!-- Yardee Logo -->
-      <div class="flex items-center">
-        <img src="/assets/images/mobile-icon.png" alt="Yardee Logo" class="h-16 sm:h-16 md:h-20 lg:h-24 xl:h-28 w-auto" />
-      </div>
+  <div class="relative z-10 flex flex-col justify-center items-center text-center h-full px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-6xl mx-auto">
+    
+    <!-- Text content with better spacing -->
+    <div class="mb-8 sm:mb-10 md:mb-12">
+      <!-- Main headline with text shadow -->
+      <h2 class="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 drop-shadow-2xl">
+        The outdoors,<br class="sm:hidden" /> <span class="text-[#88E03B]">now on demand.</span>
+      </h2>
       
-      <!-- App Store Badges -->
-      <div class="flex items-center gap-2 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10">
-        <!-- App Store Badge -->
-        <img src="/assets/icons/app-store-badge.svg" alt="Download on App Store" class="h-8 sm:h-8 md:h-10 lg:h-12 xl:h-14 w-auto" />
-        
-        <!-- Google Play Badge -->
-        <img src="/assets/icons/google-play-badge.svg" alt="Get it on Google Play" class="h-8 sm:h-8 md:h-10 lg:h-12 xl:h-14 w-auto" />
+      <!-- Subheadline -->
+      <p class="text-white/90 text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium drop-shadow-lg">
+        Coming soon to your device.
+      </p>
+      
+      <!-- Feature highlight -->
+      <div class="mt-4 sm:mt-6">
+        <div class="inline-flex items-center bg-white/15 backdrop-blur-sm rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-white/20">
+          <div class="w-2 h-2 bg-[#88E03B] rounded-full mr-2 animate-pulse"></div>
+          <span class="text-white/90 text-sm sm:text-base font-medium">2026 Launch • Early Access Available</span>
+        </div>
       </div>
     </div>
+
+    <!-- Enhanced app download section -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl max-w-2xl w-full">
+      
+      <!-- Section header -->
+      <div class="text-center mb-6 sm:mb-8">
+        <h3 class="text-white text-lg sm:text-xl md:text-2xl font-semibold mb-2">
+          Get Ready for Launch
+        </h3>
+        <p class="text-white/80 text-sm sm:text-base">
+          Download the app when it's available
+        </p>
+      </div>
+
+      <!-- Download badges -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+        <!-- App Store Badge -->
+        <div class="opacity-75 flex items-center">
+          <img src="/assets/icons/app-store-badge.svg" alt="Coming Soon - App Store" 
+               class="h-12 sm:h-13 md:h-14 lg:h-15 w-auto filter drop-shadow-lg border-2 border-white/50 rounded-lg" />
+        </div>
+        
+        <!-- Google Play Badge -->
+        <div class="opacity-75 flex items-center">
+          <img src="/assets/icons/get-it-on-google-play-badge-seeklogo.png" alt="Coming Soon - Google Play" 
+               class="h-12 sm:h-13 md:h-14 lg:h-15 w-auto filter drop-shadow-lg" />
+        </div>
+      </div>
+
+      <!-- Coming soon notice -->
+      <div class="mt-6 sm:mt-8 text-center">
+        <p class="text-white/70 text-xs sm:text-sm">
+          App will be available closer to launch • Join waitlist for early access
+        </p>
+      </div>
+    </div>
+    
   </div>
 </section>
 
@@ -253,6 +293,9 @@
         placeholder="Enter your email"
         class="w-full px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 md:py-4 bg-transparent border-2 border-white/30 rounded-full text-white placeholder-white/60 focus:outline-none focus:border-white/80 focus:bg-white/10 text-sm sm:text-base md:text-lg transition-all duration-300 ease-in-out transform focus:scale-105"
       />
+      <p class="text-white/60 text-xs text-center">
+        By providing your email, you consent to agree to our <a href="https://docs.google.com/document/d/1n4tNZlwd4pCVvcF244N_5EuhKAgKusWk-yKyefdoSyY/preview" target="_blank" rel="noopener noreferrer" class="underline hover:text-white/80 transition-colors">Terms and Conditions</a>
+      </p>
       <button
         type="submit"
         class="bg-[#021A0D] hover:bg-white hover:text-black text-white font-semibold rounded-[25px] transition-all duration-700 ease-in-out transform hover:scale-105 hover:shadow-xl shadow-lg text-sm sm:text-base"

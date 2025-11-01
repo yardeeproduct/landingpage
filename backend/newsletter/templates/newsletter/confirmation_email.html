@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
-    <title>Welcome to {{ company_name }} Newsletter</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Welcome to Yardee Spaces - You're on the list!</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -14,110 +15,320 @@
         </xml>
     </noscript>
     <![endif]-->
+    <style type="text/css">
+        /* Email Client Reset */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            display: block;
+        }
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+            }
+            .email-content {
+                padding: 30px 20px !important;
+            }
+            .email-header {
+                padding: 35px 25px 25px 25px !important;
+            }
+            .email-header h1 {
+                font-size: 24px !important;
+                line-height: 1.3 !important;
+            }
+            .content-box {
+                padding: 25px 20px !important;
+            }
+            .social-container {
+                padding: 25px 20px !important;
+            }
+            .social-icon-link {
+                padding: 0 8px !important;
+            }
+            .logo-img {
+                max-width: 160px !important;
+                width: 160px !important;
+            }
+            .header-title {
+                font-size: 22px !important;
+            }
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;">
+    <!-- Main Wrapper -->
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
         <tr>
-            <td style="padding: 20px 0;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <td align="center" style="padding: 30px 10px;">
+                <!-- Email Container -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="margin: 0 auto; background-color: #ffffff; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); max-width: 600px; width: 100%; overflow: hidden;">
                     
                     <!-- Header with Logo -->
                     <tr>
-                        <td style="padding: 40px 40px 20px 40px; text-align: center; background-color: #ffffff; border-radius: 8px 8px 0 0;">
-                            {% if logo_url %}
-                            <img src="{{ logo_url }}" alt="{{ company_name }} Logo" style="max-width: 200px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+                        <td class="email-header" style="padding: 50px 40px 35px 40px; text-align: center; background: linear-gradient(135deg, #224432 0%, #2d5a3d 50%, #88E03B 100%); border-radius: 16px 16px 0 0;">
+                            {% if logo_base64 %}
+                            <!-- Embedded Logo (Base64) -->
+                            <img src="{{ logo_base64 }}" alt="Yardee Spaces" class="logo-img" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px;">
+                            {% elif logo_url and logo_url != '' %}
+                            <!-- Logo URL (Fallback) -->
+                            <img src="{{ logo_url }}" alt="Yardee Spaces" class="logo-img" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px;">
+                            {% else %}
+                            <!-- Fallback Text Logo -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center; padding-bottom: 25px;">
+                                        <div style="font-size: 40px; font-weight: 700; color: #ffffff; letter-spacing: 1.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                            Yardee Spaces
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                             {% endif %}
-                            <h1 style="margin: 0; color: #2c3e50; font-size: 28px; font-weight: 700; line-height: 1.2;">
-                                Welcome to {{ company_name }}!
+                            <h1 class="header-title" style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.4; text-shadow: 0 2px 6px rgba(0,0,0,0.15); letter-spacing: 0.3px;">
+                                You're on the list!<br><span style="font-size: 28px; font-weight: 600;">Welcome to Yardee Spaces</span> 🌿
                             </h1>
                         </td>
                     </tr>
                     
                     <!-- Main Content -->
                     <tr>
-                        <td style="padding: 0 40px 40px 40px;">
-                            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 6px; margin-bottom: 30px;">
-                                <p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1.6; color: #333333;">
-                                    Thank you for subscribing to our newsletter! We're excited to have you on board.
-                                </p>
-                                
-                                <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #555555;">
-                                    You'll receive updates about our latest news, products, and exclusive content directly in your inbox.
-                                </p>
-                                
-                                <!-- What to Expect Section -->
-                                <div style="background-color: #e8f4f8; padding: 25px; border-radius: 6px; border-left: 4px solid #3498db;">
-                                    <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 18px; font-weight: 600;">
-                                        What to expect:
-                                    </h3>
-                                    <ul style="margin: 0; padding-left: 20px; color: #555555; font-size: 15px; line-height: 1.6;">
-                                        <li style="margin-bottom: 8px;">Latest company updates and announcements</li>
-                                        <li style="margin-bottom: 8px;">Product news and feature releases</li>
-                                        <li style="margin-bottom: 8px;">Exclusive content and insights</li>
-                                        <li style="margin-bottom: 0;">Special offers and promotions</li>
-                                    </ul>
-                                </div>
-                                
-                                {% if website_url %}
-                                <!-- Call to Action -->
-                                <div style="text-align: center; margin-top: 30px;">
-                                    <a href="{{ website_url }}" style="display: inline-block; background-color: #3498db; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 5px; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">
-                                        Visit Our Website
-                                    </a>
-                                </div>
-                                {% endif %}
-                            </div>
+                        <td class="email-content" style="padding: 45px 40px;">
+                            <!-- Content Box -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa; border-radius: 12px; margin-bottom: 35px;">
+                                <tr>
+                                    <td style="padding: 40px 35px;">
+                                        <p style="margin: 0 0 24px 0; font-size: 19px; line-height: 1.6; color: #1a1a1a; font-weight: 600;">
+                                            Hey there,
+                                        </p>
+                                        
+                                        <p style="margin: 0 0 28px 0; font-size: 16px; line-height: 1.75; color: #4a4a4a;">
+                                            You've officially joined the waitlist for <strong style="color: #224432;">Yardee Spaces</strong>, and we're thrilled to have you as part of our founding community!
+                                        </p>
+                                        
+                                        <p style="margin: 0 0 28px 0; font-size: 16px; line-height: 1.75; color: #4a4a4a;">
+                                            Our mission is to unlock the GTA's hidden outdoors, connecting urban dwellers with private, underutilized backyards for everything from BBQs and birthdays to quiet afternoon escapes. By joining the list, you're one step closer to discovering and booking these unique spaces.
+                                        </p>
+                                        
+                                        <!-- What's Next Section -->
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: linear-gradient(135deg, #E8F7DC 0%, #F0FCE8 100%); border-radius: 10px; border-left: 5px solid #88E03B; margin: 30px 0; box-shadow: 0 2px 8px rgba(136,224,59,0.1);">
+                                            <tr>
+                                                <td style="padding: 28px;">
+                                                    <h3 style="margin: 0 0 16px 0; color: #224432; font-size: 20px; font-weight: 700; letter-spacing: 0.2px;">
+                                                        So, what's next?
+                                                    </h3>
+                                                    <p style="margin: 0; color: #555555; font-size: 15px; line-height: 1.75;">
+                                                        As we work on building the app and preparing for our official launch (planned for <strong>Q2 2026</strong>), you'll be the first to know. We'll be sending exclusive updates, early access opportunities, and other news directly to your inbox.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <p style="margin: 35px 0 24px 0; font-size: 17px; line-height: 1.7; color: #2d3748; font-weight: 500;">
+                                            In the meantime, the Yardee community is already starting to grow. Follow our journey and connect with us on social media:
+                                        </p>
+                                        
+                                        <!-- Social Media Section -->
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px; border: 2px solid #e8ece8; margin: 30px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                                            <tr>
+                                                <td style="padding: 35px 30px; text-align: center;">
+                                                    <p style="margin: 0 0 28px 0; color: #224432; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                                                        Follow Our Journey
+                                                    </p>
+                                                    
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                                                        <tr>
+                                                            {% if social_links.linkedin %}
+                                                            <td class="social-icon-link" style="padding: 0 12px;">
+                                                                <a href="{{ social_links.linkedin }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
+                                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                                                        <tr>
+                                                                            <td style="background-color: #224432; border-radius: 50%; width: 56px; height: 56px; text-align: center; vertical-align: middle; box-shadow: 0 4px 12px rgba(34,68,50,0.3); transition: all 0.3s ease;">
+                                                                                <span style="color: #ffffff; font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; line-height: 56px;">in</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </a>
+                                                            </td>
+                                                            {% endif %}
+                                                            {% if social_links.instagram %}
+                                                            <td class="social-icon-link" style="padding: 0 12px;">
+                                                                <a href="{{ social_links.instagram }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
+                                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                                                        <tr>
+                                                                            <td style="background-color: #224432; border-radius: 50%; width: 56px; height: 56px; text-align: center; vertical-align: middle; box-shadow: 0 4px 12px rgba(34,68,50,0.3);">
+                                                                                <!-- Instagram icon -->
+                                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                                                                                    <tr>
+                                                                                        <td style="border: 3px solid #ffffff; border-radius: 6px; width: 24px; height: 24px; text-align: center; vertical-align: middle;">
+                                                                                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                                                                                                <tr>
+                                                                                                    <td style="width: 10px; height: 10px; border: 2.5px solid #ffffff; border-radius: 50%; background-color: transparent;"></td>
+                                                                                                </tr>
+                                                                                            </table>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </a>
+                                                            </td>
+                                                            {% endif %}
+                                                            {% if social_links.facebook %}
+                                                            <td class="social-icon-link" style="padding: 0 12px;">
+                                                                <a href="{{ social_links.facebook }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
+                                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                                                        <tr>
+                                                                            <td style="background-color: #224432; border-radius: 50%; width: 56px; height: 56px; text-align: center; vertical-align: middle; box-shadow: 0 4px 12px rgba(34,68,50,0.3);">
+                                                                                <span style="color: #ffffff; font-family: Arial, sans-serif; font-size: 26px; font-weight: bold; line-height: 56px;">f</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </a>
+                                                            </td>
+                                                            {% endif %}
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <p style="margin: 35px 0 0 0; font-size: 17px; line-height: 1.7; color: #224432; font-weight: 700; text-align: center; letter-spacing: 0.3px;">
+                                            We can't wait to help you find your space.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                             
                             <!-- Disclaimer -->
-                            <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.5; color: #666666;">
-                                If you didn't subscribe to this newsletter, you can safely ignore this email 
-                                or <a href="mailto:{{ support_email }}" style="color: #3498db; text-decoration: none;">contact us</a>.
-                            </p>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding-bottom: 28px;">
+                                        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6b7280;">
+                                            If you didn't subscribe to this newsletter, you can safely ignore this email 
+                                            or <a href="mailto:{{ support_email }}" style="color: #88E03B; text-decoration: none; font-weight: 600;">contact us</a>.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                             
                             <!-- Signature -->
-                            <div style="border-top: 1px solid #dddddd; padding-top: 20px; text-align: center;">
-                                <p style="margin: 0 0 10px 0; color: #555555; font-size: 16px; font-weight: 600;">
-                                    Best regards,
-                                </p>
-                                <p style="margin: 0; color: #3498db; font-size: 18px; font-weight: 700;">
-                                    The {{ company_name }} Team
-                                </p>
-                            </div>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top: 3px solid #e9ecef; padding-top: 32px; margin-top: 10px;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <p style="margin: 0 0 12px 0; color: #4a5568; font-size: 17px; font-weight: 600; letter-spacing: 0.2px;">
+                                            Cheers,
+                                        </p>
+                                        <p style="margin: 0; color: #224432; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">
+                                            The Yardee Spaces Team
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     
                     <!-- Footer -->
                     <tr>
-                        <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; border-top: 1px solid #e9ecef;">
-                            <p style="margin: 0 0 10px 0; text-align: center; color: #999999; font-size: 12px; line-height: 1.4;">
-                                This email was sent to <strong>{{ subscriber_email }}</strong>
-                            </p>
-                            
-                            {% if company_address %}
-                            <p style="margin: 0 0 10px 0; text-align: center; color: #999999; font-size: 12px; line-height: 1.4;">
-                                {{ company_address }}
-                            </p>
-                            {% endif %}
-                            
-                            <p style="margin: 0; text-align: center; color: #999999; font-size: 12px; line-height: 1.4;">
-                                To unsubscribe or manage your preferences, please 
-                                <a href="mailto:{{ support_email }}" style="color: #3498db; text-decoration: none;">contact us</a>.
-                            </p>
-                            
-                            {% if social_links %}
-                            <!-- Social Links -->
-                            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef;">
-                                {% if social_links.website %}
-                                <a href="{{ social_links.website }}" style="display: inline-block; margin: 0 10px; color: #3498db; text-decoration: none; font-size: 12px;">Website</a>
+                        <td style="padding: 40px 40px; background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%); border-radius: 0 0 16px 16px; border-top: 2px solid #e9ecef;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center; padding-bottom: 16px;">
+                                        <p style="margin: 0; color: #718096; font-size: 12px; line-height: 1.6;">
+                                            This email was sent to <strong style="color: #4a5568;">{{ subscriber_email }}</strong>
+                                        </p>
+                                    </td>
+                                </tr>
+                                
+                                {% if company_address %}
+                                <tr>
+                                    <td style="text-align: center; padding-bottom: 16px;">
+                                        <p style="margin: 0; color: #718096; font-size: 12px; line-height: 1.6;">
+                                            {{ company_address }}
+                                        </p>
+                                    </td>
+                                </tr>
                                 {% endif %}
-                                {% if social_links.linkedin %}
-                                <a href="{{ social_links.linkedin }}" style="display: inline-block; margin: 0 10px; color: #3498db; text-decoration: none; font-size: 12px;">LinkedIn</a>
+                                
+                                <tr>
+                                    <td style="text-align: center; padding-bottom: 24px;">
+                                        <p style="margin: 0; color: #718096; font-size: 12px; line-height: 1.6;">
+                                            To unsubscribe or manage your preferences, please 
+                                            <a href="mailto:{{ support_email }}" style="color: #88E03B; text-decoration: none; font-weight: 600;">contact us</a>.
+                                        </p>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Social Links Footer -->
+                                {% if social_links.website or social_links.linkedin or social_links.instagram or social_links.facebook %}
+                                <tr>
+                                    <td style="text-align: center; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                                        <p style="margin: 0 0 18px 0; color: #a0aec0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;">
+                                            Connect with us
+                                        </p>
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                                            <tr>
+                                                {% if social_links.website %}
+                                                <td style="padding: 0 10px;">
+                                                    <a href="{{ social_links.website }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; color: #88E03B; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;">Website</a>
+                                                </td>
+                                                {% endif %}
+                                                {% if social_links.linkedin %}
+                                                <td style="padding: 0 10px;">
+                                                    <a href="{{ social_links.linkedin }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; color: #88E03B; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;">LinkedIn</a>
+                                                </td>
+                                                {% endif %}
+                                                {% if social_links.instagram %}
+                                                <td style="padding: 0 10px;">
+                                                    <a href="{{ social_links.instagram }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; color: #88E03B; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;">Instagram</a>
+                                                </td>
+                                                {% endif %}
+                                                {% if social_links.facebook %}
+                                                <td style="padding: 0 10px;">
+                                                    <a href="{{ social_links.facebook }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; color: #88E03B; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;">Facebook</a>
+                                                </td>
+                                                {% endif %}
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
                                 {% endif %}
-                                {% if social_links.twitter %}
-                                <a href="{{ social_links.twitter }}" style="display: inline-block; margin: 0 10px; color: #3498db; text-decoration: none; font-size: 12px;">Twitter</a>
-                                {% endif %}
-                            </div>
-                            {% endif %}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- Spacer -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                        <td style="padding: 30px 0; text-align: center;">
+                            <p style="margin: 0; color: #a0aec0; font-size: 11px; line-height: 1.5;">
+                                © {% now "Y" %} Yardee Spaces. All rights reserved.
+                            </p>
                         </td>
                     </tr>
                 </table>

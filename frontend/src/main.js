@@ -135,6 +135,14 @@ class EmailSignup {
     // Show immediate loading state
     this.showLoadingState(notifyButton, emailInput);
     
+    // Show success message immediately (user sees instant feedback)
+    this.showSuccessMessage();
+    
+    // Continue backend submission in background (fire and forget)
+    this.submitToBackend(email);
+  }
+  
+  async submitToBackend(email) {
     // Retry logic for cold start issues
     const maxRetries = 2;
     let attempt = 0;
@@ -175,66 +183,42 @@ class EmailSignup {
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-          // Handle HTTP errors
-          let errorMessage = 'Failed to submit email. Please try again.';
+          // Handle HTTP errors silently (user already sees success screen)
+          console.error(`Backend submission failed: ${response.status}`);
           
           if (response.status === 400) {
             try {
               const errorData = await response.json();
-              if (errorData.email && Array.isArray(errorData.email)) {
-                errorMessage = errorData.email[0];
-              } else if (errorData.message) {
-                errorMessage = errorData.message;
-              } else if (errorData.detail) {
-                errorMessage = errorData.detail;
-              }
+              console.error('Backend error details:', errorData);
             } catch (parseError) {
               console.warn('Failed to parse error response:', parseError);
             }
-          } else if (response.status === 429) {
-            errorMessage = 'Too many requests. Please try again later.';
-          } else if (response.status >= 500) {
-            errorMessage = 'Server error. Please try again later.';
           }
           
-          this.resetButtonState(notifyButton, emailInput);
-          this.showError(errorMessage);
-          return;
+          // If this was the last attempt, log failure but don't show to user
+          if (attempt >= maxRetries) {
+            console.error('All backend submission attempts failed');
+            return;
+          }
+        } else {
+          // Success response
+          const data = await response.json();
+          console.log('Email subscription successful:', data);
+          return; // Exit retry loop on success
         }
-        
-        // Success response
-        const data = await response.json();
-        console.log('Email subscription successful:', data);
-        this.showSuccessMessage();
-        return; // Exit retry loop on success
         
       } catch (error) {
         console.error(`Email submission error (attempt ${attempt}):`, error);
         
-        // If this is the last attempt, show error
+        // If this is the last attempt, log but don't show to user
         if (attempt >= maxRetries) {
-          this.resetButtonState(notifyButton, emailInput);
-          
-          if (error.name === 'AbortError') {
-            this.showError('The server is starting up. Please try again in a moment.');
-          } else if (error instanceof TypeError && error.message.includes('fetch')) {
-            this.showError('Network error. Please check your connection and try again.');
-          } else {
-            this.showError('An unexpected error occurred. Please try again.');
-          }
+          console.error('All backend submission attempts failed:', error);
           return;
         }
         
         // Wait before retry (exponential backoff)
         const waitTime = attempt === 1 ? 1000 : 2000; // 1s after first failure, 2s after second
         console.log(`Retrying in ${waitTime}ms...`);
-        
-        // Update button to show retry status
-        if (notifyButton) {
-          notifyButton.innerHTML = `
-            <img src="/assets/icons/Logo-icon.svg" alt="Retrying" class="logo-submitting w-6 h-6 mx-auto" />
-          `;
-        }
         
         await new Promise(resolve => setTimeout(resolve, waitTime));
       }
@@ -299,28 +283,118 @@ class EmailSignup {
   showSuccessMessage() {
     const signupSection = document.getElementById('signup');
     if (signupSection) {
-      // Transform the entire signup section content
-      signupSection.innerHTML = `
-        <div class="max-w-4xl mx-auto text-center">
-          <h2 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-medium text-white mb-4 sm:mb-6 md:mb-8 lg:mb-10">
-            You're in! 🎉
-          </h2>
-          <p class="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-2 sm:mb-3 md:mb-4">
-            We've added you to the waitlist.
-          </p>
-          <p class="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
-            Stay tuned for updates!
-          </p>
-        </div>
+      // Create overlay div to prevent white flash
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #224432;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
       `;
+      signupSection.style.position = 'relative';
+      signupSection.appendChild(overlay);
       
-      // Add a subtle animation
-      signupSection.style.transition = 'all 0.5s ease-in-out';
-      signupSection.style.transform = 'scale(1.02)';
+      // Trigger overlay fade-in
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+      });
       
       setTimeout(() => {
-        signupSection.style.transform = 'scale(1)';
-      }, 500);
+        // Professional success message with better design
+        signupSection.innerHTML = `
+          <div class="max-w-4xl mx-auto text-center">
+            <!-- Success Icon -->
+            <div class="mb-6 sm:mb-8 flex justify-center">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+            
+            <!-- Success Message -->
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white mb-4 sm:mb-6">
+              Welcome to the waitlist!
+            </h2>
+            
+            <!-- Confirmation Text -->
+            <div class="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+              <p class="text-base sm:text-lg md:text-xl text-white/95 font-medium">
+                You're officially on the list for early access.
+              </p>
+              <p class="text-sm sm:text-base md:text-lg text-white/80">
+                We'll notify you as soon as Yardee Spaces launches in 2026.
+              </p>
+            </div>
+            
+            <!-- Next Steps -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20 max-w-2xl mx-auto">
+              <h3 class="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">
+                What's next?
+              </h3>
+              <div class="space-y-2 sm:space-y-3 text-sm sm:text-base text-white/90">
+                <div class="flex items-center justify-center sm:justify-start space-x-3">
+                  <div class="w-2 h-2 bg-[#88E03B] rounded-full flex-shrink-0"></div>
+                  <span>Get exclusive updates on our progress</span>
+                </div>
+                <div class="flex items-center justify-center sm:justify-start space-x-3">
+                  <div class="w-2 h-2 bg-[#88E03B] rounded-full flex-shrink-0"></div>
+                  <span>Early access to beta features</span>
+                </div>
+                <div class="flex items-center justify-center sm:justify-start space-x-3">
+                  <div class="w-2 h-2 bg-[#88E03B] rounded-full flex-shrink-0"></div>
+                  <span>Priority onboarding when we launch</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Social Follow CTA -->
+            <div class="mt-6 sm:mt-8">
+              <p class="text-sm sm:text-base text-white/70 mb-3 sm:mb-4">
+                Follow our journey on social media
+              </p>
+              <div class="flex justify-center space-x-4">
+                <a href="https://www.linkedin.com/company/yardee-spaces" target="_blank" rel="noopener noreferrer" 
+                   class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </a>
+                <a href="https://www.instagram.com/yardeespaces/" target="_blank" rel="noopener noreferrer"
+                   class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Remove overlay and reset styles
+        const overlay = signupSection.querySelector('div[style*="z-index: 10"]');
+        if (overlay) overlay.remove();
+        signupSection.style.position = '';
+        
+        // Add staggered animation to elements without opacity flash
+        const elements = signupSection.querySelectorAll('div, h2, h3, p');
+        elements.forEach((element, index) => {
+          element.style.opacity = '0';
+          element.style.transform = 'translateY(20px)';
+          element.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+          
+          setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+          }, 50 + (index * 80)); // Stagger by 80ms each for smoother effect
+        });
+        
+      }, 300); // Reduced timeout for smoother transition
     }
   }
   
@@ -350,9 +424,9 @@ const emailSignup = new EmailSignup();
 // Terms and Privacy Policy links functionality
 class LegalLinksHandler {
   constructor() {
-    // Replace these URLs with your actual Google Drive links
-    this.termsUrl = 'https://yardeespaces.sharepoint.com/:b:/s/YardeeSpaces/Ed99FtOLatVAgtRxSJkxsRsBPCZuIwnCP1OCPGJDbqoMGg?e=ZTbpGZ';
-    this.privacyUrl = 'https://yardeespaces.sharepoint.com/:b:/s/YardeeSpaces/ERja7G50Z51CkgA7bWXhRgABc3tT5tefPqYnB_JFi9PaEg?e=hZsvNc';
+    // Google Docs links
+    this.termsUrl = 'https://docs.google.com/document/d/1n4tNZlwd4pCVvcF244N_5EuhKAgKusWk-yKyefdoSyY/preview';
+    this.privacyUrl = 'https://docs.google.com/document/d/1DXZhPpswqPezkHC73PEe7-4gvnqwsXqFcCwLFmkQXyg/preview';
     
     this.init();
   }

@@ -13,10 +13,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env file from the main project directory (parent of backend directory)
+load_dotenv(BASE_DIR.parent / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -61,6 +63,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files in production
     'django.middleware.gzip.GZipMiddleware',  # Add compression
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -93,18 +96,28 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Build HOST with PORT for Azure SQL (required format: host,port)
+DB_HOST = os.environ.get('DB_HOST')
+DB_PORT = os.environ.get('DB_PORT', '1433')
+# For Azure SQL, combine host and port in SERVER format
+if DB_HOST and DB_PORT:
+    DB_SERVER = f"{DB_HOST},{DB_PORT}"
+else:
+    DB_SERVER = DB_HOST
+
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT', ''),
+        'HOST': DB_SERVER,  # Combined host,port format for Azure SQL
+        'PORT': '',  # Port is included in HOST
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
-            'extra_params': 'TrustServerCertificate=yes',
+            'extra_params': 'Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=60',
         },
+        'CONN_MAX_AGE': 0,  # Disable connection pooling to avoid timeout issues
     }
 }
 
@@ -192,6 +205,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# WhiteNoise configuration for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -253,6 +269,8 @@ COMPANY_WEBSITE_URL = os.environ.get('COMPANY_WEBSITE_URL', '')
 COMPANY_ADDRESS = os.environ.get('COMPANY_ADDRESS', '')
 COMPANY_LINKEDIN_URL = os.environ.get('COMPANY_LINKEDIN_URL', '')
 COMPANY_TWITTER_URL = os.environ.get('COMPANY_TWITTER_URL', '')
+COMPANY_INSTAGRAM_URL = os.environ.get('COMPANY_INSTAGRAM_URL', '')
+COMPANY_FACEBOOK_URL = os.environ.get('COMPANY_FACEBOOK_URL', '')
 
 # Production Security Settings
 if not DEBUG:

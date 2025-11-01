@@ -1,40 +1,39 @@
-# Docker
-.dockerignore
-Dockerfile*
-docker-compose*
-.git
-.gitignore
-README.md
-
 # Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 .Python
-env
-venv
-.venv
-pip-log.txt
-pip-delete-this-directory.txt
+venv/
+ENV/
 
 # Django
 *.log
-local_settings.py
 db.sqlite3
+db.sqlite3-journal
+local_settings.py
+staticfiles/
 media/
 
-# Development
+# Environment files
+# NOTE: .env files are intentionally NOT ignored - they will be included in Docker builds
+# .env.local
+# production.env
+
+# IDE
 .vscode
 .idea
-*.swp
-*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing
+# Test files
+.pytest_cache/
 .coverage
-.pytest_cache
 htmlcov/
+
+# Build files
+*.egg-info/
+build/
+dist/

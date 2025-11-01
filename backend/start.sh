@@ -13,7 +13,8 @@ max_attempts = 30
 for attempt in range(max_attempts):
     try:
         # First, connect to master database
-        conn_str = f\"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={os.environ['DB_HOST']},{os.environ['DB_PORT']};DATABASE=master;UID={os.environ['DB_USER']};PWD={os.environ['DB_PASSWORD']};TrustServerCertificate=yes\"
+        # Azure SQL requires Encrypt=yes with ODBC Driver 18
+        conn_str = f\"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={os.environ['DB_HOST']},{os.environ['DB_PORT']};DATABASE=master;UID={os.environ['DB_USER']};PWD={os.environ['DB_PASSWORD']};Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=30\"
         conn = pyodbc.connect(conn_str, timeout=5)
         cursor = conn.cursor()
         

@@ -12,13 +12,22 @@ WORKDIR /app
 # Enable corepack for modern package management
 RUN corepack enable
 
+# Accept build arguments for Vite environment variables
+# Note: Vite environment variables starting with VITE_ must be available at build time
+ARG VITE_API_BASE_URL=
+ARG VITE_APP_ENV=production
+
+# Set as environment variables for the build
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_APP_ENV=$VITE_APP_ENV
+
 # Copy package files and install dependencies
 COPY frontend/package*.json ./
 
 # Install dependencies with clean install (modern best practice)
 RUN npm ci --prefer-offline --no-audit
 
-# Copy environment files
+# Copy environment files (if they exist)
 COPY frontend/.env* ./
 
 # Copy the rest of your app
