@@ -1,6 +1,6 @@
 # Modern Docker Compose configuration (2025)
+# Production-ready configuration for yardeespaces.com
 # No version field needed - using latest Docker Compose syntax
-# For local development and testing
 
 services:
   backend:
@@ -10,16 +10,16 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=${DEBUG:-true}
+      - DEBUG=${DEBUG:-false}
       - DJANGO_SETTINGS_MODULE=backend.settings
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - DB_HOST=${DB_HOST:-db}
-      - DB_NAME=${DB_NAME:-yardee_dev}
-      - DB_USER=${DB_USER:-sa}
-      - DB_PASSWORD=${DB_PASSWORD:-YourStrong@Passw0rd}
+      - SECRET_KEY=${SECRET_KEY:-}
+      - DB_HOST=${DB_HOST:-}
+      - DB_NAME=${DB_NAME:-}
+      - DB_USER=${DB_USER:-}
+      - DB_PASSWORD=${DB_PASSWORD:-}
       - DB_PORT=${DB_PORT:-1433}
-      - CORS_ALLOW_ALL_ORIGINS=True
-      - SECURE_SSL_REDIRECT=False
+      - CORS_ALLOW_ALL_ORIGINS=${CORS_ALLOW_ALL_ORIGINS:-False}
+      - SECURE_SSL_REDIRECT=${SECURE_SSL_REDIRECT:-True}
       # Email configuration for Outlook 365 Business
       - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
       - EMAIL_HOST=smtp.office365.com
@@ -28,9 +28,9 @@ services:
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
       - EMAIL_USE_TLS=true
       - EMAIL_USE_SSL=false
-      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-No Reply <noreply@yourcompany.com>}
-      - EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX:-[Newsletter] }
-      - COMPANY_NAME=${COMPANY_NAME:-Your Company}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+      - EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX:-[Yardee Spaces] }
+      - COMPANY_NAME=${COMPANY_NAME:-Yardee Spaces}
       - EMAIL_LOGO_URL=${EMAIL_LOGO_URL:-https://yardeespaces.com/assets/images/logo.svg}
       - COMPANY_WEBSITE_URL=${COMPANY_WEBSITE_URL:-https://yardeespaces.com}
       - COMPANY_ADDRESS=${COMPANY_ADDRESS:-Yardee Spaces, Toronto, ON, Canada}
@@ -38,16 +38,15 @@ services:
       - COMPANY_TWITTER_URL=${COMPANY_TWITTER_URL:-https://twitter.com/yardeespaces}
       - COMPANY_INSTAGRAM_URL=${COMPANY_INSTAGRAM_URL:-https://www.instagram.com/yardeespaces/}
       - COMPANY_FACEBOOK_URL=${COMPANY_FACEBOOK_URL:-https://www.facebook.com/yardeespaces/}
-    # Using external Azure SQL Database - no local dependencies needed
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -55,7 +54,7 @@ services:
       dockerfile: Dockerfile.frontend
       args:
         # Vite environment variables must be set at build time, not runtime
-        - VITE_API_BASE_URL=
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-}
         - VITE_APP_ENV=production
     ports:
       - "80:80"
@@ -65,12 +64,15 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - app-network
 
   # Database service for local development only - DISABLED (using Azure SQL)
   # Uncomment the section below if you want to use local SQL Server instead of Azure
@@ -97,5 +99,6 @@ volumes:
     driver: local
 
 networks:
-  default:
+  app-network:
     driver: bridge
+    name: yardee-app-network

@@ -90,12 +90,20 @@
                     <!-- Header with Logo -->
                     <tr>
                         <td class="email-header" style="padding: 50px 40px 35px 40px; text-align: center; background: linear-gradient(135deg, #224432 0%, #2d5a3d 50%, #88E03B 100%); border-radius: 16px 16px 0 0;">
-                            {% if logo_base64 %}
-                            <!-- Embedded Logo (Base64) -->
-                            <img src="{{ logo_base64 }}" alt="Yardee Spaces" class="logo-img" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px;">
+                            {% if logo_cid %}
+                            <!-- CID Logo for Gmail and Outlook compatibility -->
+                            <!--[if mso]>
+                            <v:image xmlns:v="urn:schemas-microsoft-com:vml" src="cid:logo" style="width:220px;height:auto;display:block;margin:0 auto 25px auto;" />
+                            <![endif]-->
+                            <!--[if !mso]><!-->
+                            <img src="cid:logo" alt="Yardee Spaces" class="logo-img" width="220" height="auto" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px; border: 0; outline: none; text-decoration: none;">
+                            <!--<![endif]-->
+                            {% elif logo_base64 %}
+                            <!-- Embedded Logo (Base64) - Fallback -->
+                            <img src="{{ logo_base64 }}" alt="Yardee Spaces" class="logo-img" width="220" height="auto" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px; border: 0; outline: none; text-decoration: none;">
                             {% elif logo_url and logo_url != '' %}
                             <!-- Logo URL (Fallback) -->
-                            <img src="{{ logo_url }}" alt="Yardee Spaces" class="logo-img" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px;">
+                            <img src="{{ logo_url }}" alt="Yardee Spaces" class="logo-img" width="220" height="auto" style="max-width: 220px; height: auto; margin: 0 auto 25px auto; display: block; width: 220px; border: 0; outline: none; text-decoration: none;">
                             {% else %}
                             <!-- Fallback Text Logo -->
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -109,7 +117,7 @@
                             </table>
                             {% endif %}
                             <h1 class="header-title" style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.4; text-shadow: 0 2px 6px rgba(0,0,0,0.15); letter-spacing: 0.3px;">
-                                You're on the list!<br><span style="font-size: 28px; font-weight: 600;">Welcome to Yardee Spaces</span> 🌿
+                                You're on the list!<br><span style="font-size: 28px; font-weight: 600;">Welcome to Yardee Spaces</span> 
                             </h1>
                         </td>
                     </tr>

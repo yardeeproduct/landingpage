@@ -6,8 +6,9 @@ import base64
 import os
 from pathlib import Path
 from django.conf import settings
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from email.mime.image import MIMEImage
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +56,33 @@ def get_logo_base64():
         logger.error(traceback.format_exc())
         return None
 
-def get_email_context(to_email: str, company_name: str = None) -> dict:
+def get_logo_path():
+    """
+    Find the logo file path
+    """
+    logo_paths = [
+        Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
+        Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
+        Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
+        Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
+    ]
+    
+    for path in logo_paths:
+        if path.exists():
+            logger.debug(f"Found logo at: {path}")
+            return path
+    
+    logger.warning(f"Logo file not found. Tried paths: {logo_paths}")
+    return None
+
+def get_email_context(to_email: str, company_name: str = None, use_cid: bool = False) -> dict:
     """
     Get the context data for email templates
+    
+    Args:
+        to_email: Email address
+        company_name: Optional company name
+        use_cid: Whether to use CID attachment (for logo)
     """
     if not company_name:
         company_name = getattr(settings, 'COMPANY_NAME', 'Your Company')
@@ -76,6 +101,7 @@ def get_email_context(to_email: str, company_name: str = None) -> dict:
         'logo_url': logo_url,  # Keep for fallback
         'logo_base64': logo_base64,  # Embedded logo
         'logo_data': logo_data,  # Use this in template (prefers base64)
+        'logo_cid': 'logo' if use_cid else None,  # CID for embedded attachments
         'website_url': getattr(settings, 'COMPANY_WEBSITE_URL', None),
         'company_address': getattr(settings, 'COMPANY_ADDRESS', None),
         'social_links': {
@@ -108,8 +134,12 @@ def send_confirmation_email(to_email: str, company_name: str = None) -> bool:
         logger.debug(f"[EMAIL DEBUG] Email use TLS: {settings.EMAIL_USE_TLS}")
         logger.debug(f"[EMAIL DEBUG] Email from: {getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@company.com')}")
         
+        # Check if logo file exists for CID attachment
+        logo_path = get_logo_path()
+        use_cid = logo_path is not None and logo_path.exists()
+        
         # Get template context
-        context = get_email_context(to_email, company_name)
+        context = get_email_context(to_email, company_name, use_cid=use_cid)
         logger.debug(f"[EMAIL DEBUG] Template context created: {context}")
         
         # Email subject
@@ -122,18 +152,35 @@ def send_confirmation_email(to_email: str, company_name: str = None) -> bool:
         html_body = render_to_string('newsletter/confirmation_email.html', context)
         logger.debug(f"[EMAIL DEBUG] HTML body length: {len(html_body)} characters")
         
-        # Create email message
+        # Create email message using EmailMultiAlternatives for better attachment support
         logger.debug("[EMAIL DEBUG] Creating email message...")
-        msg = EmailMessage(
+        msg = EmailMultiAlternatives(
             subject=subject,
-            body=html_body,
+            body='',  # Plain text fallback (empty for HTML-only)
             from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@company.com'),
             to=[to_email],
         )
         
-        # Set content type to HTML
-        msg.content_subtype = 'html'
-        logger.debug("[EMAIL DEBUG] HTML content type set")
+        # Attach HTML content
+        msg.attach_alternative(html_body, 'text/html')
+        logger.debug("[EMAIL DEBUG] HTML content attached")
+        
+        # Attach logo as CID if available (most reliable for Gmail and Outlook)
+        if use_cid and logo_path:
+            try:
+                with open(logo_path, 'rb') as f:
+                    logo_data = f.read()
+                
+                # Create MIMEImage attachment with CID
+                logo_img = MIMEImage(logo_data)
+                logo_img.add_header('Content-ID', '<logo>')
+                logo_img.add_header('Content-Disposition', 'inline', filename='logo.png')
+                msg.attach(logo_img)
+                logger.debug("[EMAIL DEBUG] Logo attached as CID")
+            except Exception as e:
+                logger.warning(f"[EMAIL DEBUG] Failed to attach logo as CID: {e}")
+                import traceback
+                logger.warning(traceback.format_exc())
         
         # Send email
         logger.debug(f"[EMAIL DEBUG] Attempting to send email to {to_email}...")
