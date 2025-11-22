@@ -534,10 +534,19 @@ class LegalLinksHandler {
   }
   
   async openModal(title, pageUrl, cacheKey) {
+    // Ensure modal elements exist - re-check if they weren't found initially
     if (!this.modal || !this.modalTitle || !this.modalContent) {
-      // Fallback to opening in new tab if modal elements not found
-      window.open(pageUrl, '_blank', 'noopener,noreferrer');
-      return;
+      // Try to find modal elements again (in case DOM wasn't ready)
+      this.modal = document.getElementById('legalModal');
+      this.modalTitle = document.getElementById('modalTitle');
+      this.modalContent = document.getElementById('modalContent');
+      this.modalCloseBtn = document.getElementById('modalCloseBtn');
+      
+      if (!this.modal || !this.modalTitle || !this.modalContent) {
+        console.error('Modal elements not found, falling back to new tab');
+        window.open(pageUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
     }
     
     // Set modal title
@@ -555,10 +564,12 @@ class LegalLinksHandler {
     this.showModal();
     
     try {
-      // Fetch the HTML page
-      const response = await fetch(pageUrl);
+      // Fetch the HTML page with absolute path to avoid path issues
+      const fetchUrl = pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`;
+      const response = await fetch(fetchUrl);
+      
       if (!response.ok) {
-        throw new Error('Failed to load content');
+        throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
       }
       
       const html = await response.text();
@@ -603,16 +614,32 @@ class LegalLinksHandler {
           // Display in modal
           this.modalContent.innerHTML = clonedContent.innerHTML;
         } else {
-          throw new Error('Content structure not found');
+          throw new Error('Content structure (.prose) not found in the HTML');
         }
       } else {
-        throw new Error('Main content not found');
+        throw new Error('Main content (<main>) not found in the HTML');
       }
     } catch (error) {
       console.error('Error loading content:', error);
-      // Fallback to opening full page
-      this.closeModal();
-      window.open(pageUrl, '_blank', 'noopener,noreferrer');
+      console.error('Failed URL:', pageUrl);
+      
+      // Show error in modal instead of redirecting
+      this.modalContent.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+          <div class="text-red-600 mb-4">
+            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <p class="text-gray-700 mb-4">Unable to load content. Please try again or view the full page.</p>
+          <a href="${pageUrl}" target="_blank" class="text-[#224432] underline hover:text-[#2d5a3d]">
+            Open Full Page
+          </a>
+          <p class="text-xs text-gray-500 mt-2">Error: ${error.message}</p>
+        </div>
+      `;
+      
+      // Keep modal open so user can see the error and choose to open full page
     }
   }
   
