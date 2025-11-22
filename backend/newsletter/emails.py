@@ -14,18 +14,31 @@ logger = logging.getLogger(__name__)
 
 def get_logo_base64():
     """
-    Get the logo as base64 encoded data URI for embedding in email (PNG format for better email client support)
+    Get the logo as base64 encoded data URI for embedding in email
+    Prefers PNG format for better email client support, falls back to SVG
     """
     try:
-        # Try multiple paths to find the logo PNG file
+        # Try multiple paths and formats to find the email logo
         logo_paths = [
-            # Path 1: In Docker container (logo copied to /app/frontend/public/assets/images/logo-3.png)
+            # Email-specific logo - highest priority
+            Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+            Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+            Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+            Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+            # Header logo - PNG format (fallback)
+            Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+            Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+            Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+            Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+            # Header logo - SVG format (fallback)
+            Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+            Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+            Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+            Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+            # Legacy fallback to logo-3.png
             Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
-            # Path 2: Local development (project root)
             Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
-            # Path 3: From current working directory (alternative)
             Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
-            # Path 4: Absolute path in Docker if frontend is mounted
             Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
         ]
         
@@ -37,15 +50,26 @@ def get_logo_base64():
                 break
         
         if logo_path and logo_path.exists():
-            # Read PNG as binary and encode to base64
+            # Read file as binary and encode to base64
             with open(logo_path, 'rb') as f:
                 logo_data = f.read()
             
+            # Determine MIME type based on file extension
+            file_ext = logo_path.suffix.lower()
+            if file_ext == '.svg':
+                mime_type = 'image/svg+xml'
+            elif file_ext == '.png':
+                mime_type = 'image/png'
+            elif file_ext == '.jpg' or file_ext == '.jpeg':
+                mime_type = 'image/jpeg'
+            else:
+                mime_type = 'image/png'  # Default
+            
             # Encode to base64
             logo_base64 = base64.b64encode(logo_data).decode('utf-8')
-            logo_data_uri = f'data:image/png;base64,{logo_base64}'
+            logo_data_uri = f'data:{mime_type};base64,{logo_base64}'
             
-            logger.info(f"Logo loaded successfully from {logo_path}, size: {len(logo_data)} bytes")
+            logger.info(f"Logo loaded successfully from {logo_path}, size: {len(logo_data)} bytes, type: {mime_type}")
             return logo_data_uri
         else:
             logger.warning(f"Logo file not found. Tried paths: {logo_paths}")
@@ -58,9 +82,26 @@ def get_logo_base64():
 
 def get_logo_path():
     """
-    Find the logo file path
+    Find the logo file path (for CID attachment)
+    Prefers PNG for better email client support
     """
     logo_paths = [
+        # Email-specific logo - highest priority
+        Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+        Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+        Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+        Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'email-yardee.png',
+        # Header logo - PNG format (fallback)
+        Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+        Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+        Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+        Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.png',
+        # Header logo - SVG format (fallback)
+        Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+        Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+        Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+        Path('/app') / 'frontend' / 'public' / 'assets' / 'images' / 'yardee-header.svg',
+        # Legacy fallback
         Path(settings.BASE_DIR) / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
         Path(settings.BASE_DIR).parent / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
         Path.cwd() / 'frontend' / 'public' / 'assets' / 'images' / 'logo-3.png',
@@ -142,9 +183,15 @@ def send_confirmation_email(to_email: str, company_name: str = None) -> bool:
         context = get_email_context(to_email, company_name, use_cid=use_cid)
         logger.debug(f"[EMAIL DEBUG] Template context created: {context}")
         
-        # Email subject
+        # Email subject - remove any [Yardee spaces] prefix
         subject_prefix = getattr(settings, 'EMAIL_SUBJECT_PREFIX', '[Newsletter] ')
-        subject = f"{subject_prefix}Welcome to our newsletter!"
+        # Remove [Yardee spaces] or [Yardee Spaces] from subject prefix
+        subject_prefix = subject_prefix.replace('[Yardee spaces]', '').replace('[Yardee Spaces]', '').strip()
+        # If prefix is empty or just whitespace, don't add it
+        if subject_prefix and not subject_prefix.isspace():
+            subject = f"{subject_prefix} Welcome to our newsletter!"
+        else:
+            subject = "Welcome to our newsletter!"
         logger.debug(f"[EMAIL DEBUG] Email subject: {subject}")
         
         # Render email template

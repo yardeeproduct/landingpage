@@ -430,9 +430,21 @@ const emailSignup = new EmailSignup();
 // Terms and Privacy Policy links functionality
 class LegalLinksHandler {
   constructor() {
-    // Google Docs links
-    this.termsUrl = 'https://docs.google.com/document/d/1n4tNZlwd4pCVvcF244N_5EuhKAgKusWk-yKyefdoSyY/preview';
-    this.privacyUrl = 'https://docs.google.com/document/d/1DXZhPpswqPezkHC73PEe7-4gvnqwsXqFcCwLFmkQXyg/preview';
+    // Full page URLs
+    this.termsUrl = '/terms.html';
+    this.privacyUrl = '/privacy.html';
+    
+    // Modal elements
+    this.modal = document.getElementById('legalModal');
+    this.modalTitle = document.getElementById('modalTitle');
+    this.modalContent = document.getElementById('modalContent');
+    this.modalCloseBtn = document.getElementById('modalCloseBtn');
+    
+    // Content cache
+    this.contentCache = {
+      terms: null,
+      privacy: null
+    };
     
     this.init();
   }
@@ -441,9 +453,36 @@ class LegalLinksHandler {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
         this.setupLegalLinks();
+        this.setupModal();
       });
     } else {
       this.setupLegalLinks();
+      this.setupModal();
+    }
+  }
+  
+  setupModal() {
+    // Close modal on backdrop click
+    if (this.modal) {
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) {
+          this.closeModal();
+        }
+      });
+      
+      // Close modal on close button click
+      if (this.modalCloseBtn) {
+        this.modalCloseBtn.addEventListener('click', () => {
+          this.closeModal();
+        });
+      }
+      
+      // Close modal on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.modal && !this.modal.classList.contains('hidden')) {
+          this.closeModal();
+        }
+      });
     }
   }
   
@@ -451,38 +490,148 @@ class LegalLinksHandler {
     // Find all legal links in the footer
     const footerLinks = document.querySelectorAll('footer a');
     
-    footerLinks.forEach(link => {
+    // Also find links in the signup section
+    const signupLinks = document.querySelectorAll('#signup a');
+    
+    // Find links with legal-link class
+    const legalClassLinks = document.querySelectorAll('a.legal-link');
+    
+    // Combine all links
+    const allLinks = [...footerLinks, ...signupLinks, ...legalClassLinks];
+    
+    allLinks.forEach(link => {
       const linkText = link.textContent.trim().toLowerCase();
       const href = link.getAttribute('href') || '';
       
-      if (linkText.includes('terms') || linkText.includes('conditions')) {
+      // Skip mailto links
+      if (href.startsWith('mailto:')) {
+        return;
+      }
+      
+      // Handle terms and conditions links
+      if (linkText.includes('terms') || linkText.includes('conditions') || href.includes('terms.html')) {
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          this.openTerms();
+          this.openTermsModal();
         });
-      } else if (linkText.includes('privacy')) {
+      } 
+      // Handle privacy policy links
+      else if (linkText.includes('privacy') || href.includes('privacy.html')) {
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          this.openPrivacy();
-        });
-      } else if (href.includes('mailto:') || linkText.includes('@') || linkText.includes('hello')) {
-        // Handle email contact link
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          this.openEmail();
+          this.openPrivacyModal();
         });
       }
     });
   }
   
-  openTerms() {
-    // Open Terms & Conditions in new tab
-    window.open(this.termsUrl, '_blank', 'noopener,noreferrer');
+  async openTermsModal() {
+    await this.openModal('Terms and Conditions', this.termsUrl, 'terms');
   }
   
-  openPrivacy() {
-    // Open Privacy Policy in new tab
-    window.open(this.privacyUrl, '_blank', 'noopener,noreferrer');
+  async openPrivacyModal() {
+    await this.openModal('Privacy Policy', this.privacyUrl, 'privacy');
+  }
+  
+  async openModal(title, pageUrl, cacheKey) {
+    if (!this.modal || !this.modalTitle || !this.modalContent) {
+      // Fallback to opening in new tab if modal elements not found
+      window.open(pageUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    
+    // Set modal title
+    this.modalTitle.textContent = title;
+    
+    // Check cache first
+    if (this.contentCache[cacheKey]) {
+      this.modalContent.innerHTML = this.contentCache[cacheKey];
+      this.showModal();
+      return;
+    }
+    
+    // Show loading state
+    this.modalContent.innerHTML = '<div class="flex items-center justify-center py-12"><div class="text-gray-600">Loading...</div></div>';
+    this.showModal();
+    
+    try {
+      // Fetch the HTML page
+      const response = await fetch(pageUrl);
+      if (!response.ok) {
+        throw new Error('Failed to load content');
+      }
+      
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Extract main content
+      const mainContent = doc.querySelector('main');
+      if (mainContent) {
+        // Extract the content div and format it for modal display
+        const contentDiv = mainContent.querySelector('.prose');
+        if (contentDiv) {
+          // Clone the content
+          const content = contentDiv.cloneNode(true);
+          
+          // Remove header elements and format for modal
+          const clonedContent = document.createElement('div');
+          clonedContent.innerHTML = content.innerHTML;
+          
+          // Clean up and optimize for mobile display
+          const h1Element = clonedContent.querySelector('h1');
+          if (h1Element) {
+            // Keep h1 but make it smaller for modal, optimized for mobile
+            h1Element.className = 'text-xl sm:text-2xl md:text-3xl font-semibold text-[#224432] mb-3 sm:mb-4';
+          }
+          
+          // Optimize h2 headings for mobile
+          const h2Elements = clonedContent.querySelectorAll('h2');
+          h2Elements.forEach(h2 => {
+            h2.className = 'text-base sm:text-lg md:text-xl font-semibold text-[#224432] mt-6 sm:mt-8 mb-2 sm:mb-4';
+          });
+          
+          // Optimize h3 headings for mobile
+          const h3Elements = clonedContent.querySelectorAll('h3');
+          h3Elements.forEach(h3 => {
+            h3.className = 'text-sm sm:text-base md:text-lg font-semibold text-[#224432] mt-4 sm:mt-6 mb-2 sm:mb-3';
+          });
+          
+          // Cache the content
+          this.contentCache[cacheKey] = clonedContent.innerHTML;
+          
+          // Display in modal
+          this.modalContent.innerHTML = clonedContent.innerHTML;
+        } else {
+          throw new Error('Content structure not found');
+        }
+      } else {
+        throw new Error('Main content not found');
+      }
+    } catch (error) {
+      console.error('Error loading content:', error);
+      // Fallback to opening full page
+      this.closeModal();
+      window.open(pageUrl, '_blank', 'noopener,noreferrer');
+    }
+  }
+  
+  showModal() {
+    if (this.modal) {
+      this.modal.classList.remove('hidden');
+      this.modal.style.display = 'flex';
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  
+  closeModal() {
+    if (this.modal) {
+      this.modal.classList.add('hidden');
+      this.modal.style.display = 'none';
+      // Restore body scroll
+      document.body.style.overflow = '';
+    }
   }
   
   openEmail() {
@@ -491,12 +640,6 @@ class LegalLinksHandler {
     const mailtoUrl = `mailto:hello@yardeespaces.com?subject=${encodeURIComponent(subject)}`;
     
     window.location.href = mailtoUrl;
-  }
-  
-  // Method to update URLs if needed
-  updateUrls(termsUrl, privacyUrl) {
-    this.termsUrl = termsUrl;
-    this.privacyUrl = privacyUrl;
   }
 }
 
