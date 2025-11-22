@@ -150,7 +150,7 @@ server {
     
     # Proxy to Docker frontend
     location / {
-        proxy_pass http://localhost:80;
+        proxy_pass http://localhost:8080; # Frontend now bound to host 8080 so nginx can keep 80/443
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -211,6 +211,7 @@ docker-compose ps
 
 # Test HTTP endpoint
 curl -I http://localhost/api/health/
+curl -I http://localhost:8080/
 
 # Test from external machine
 curl -I https://www.yardeespaces.com

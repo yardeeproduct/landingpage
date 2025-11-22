@@ -67,8 +67,8 @@ else
     exit 1
 fi
 
-# Test frontend health
-if curl -f http://localhost:80/ > /dev/null 2>&1; then
+# Test frontend health (now served on host port 8080 to keep :80 free for nginx)
+if curl -f http://localhost:8080/ > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Frontend health check passed${NC}"
 else
     echo -e "${RED}❌ Frontend health check failed${NC}"
